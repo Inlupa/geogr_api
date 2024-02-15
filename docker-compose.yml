@@ -1,12 +1,17 @@
 version: '3.9'
 services:
   postgres:
-    build: ./postgres
-    image: postgres:16
+    # build: ./postgres
+    image: postgis/postgis
+    restart: always
     environment:
-      POSTGRES_USER: anton
-      POSTGRES_PASSWORD: hornetm3
-      POSTGRES_DB: amur
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+     - ./data/postgis:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    # command: cat amur3.sql | docker exec -i geogr_api-postgres-1 psql -U postgres
+    
     

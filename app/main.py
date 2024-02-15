@@ -4,10 +4,6 @@ from typing import List, Annotated
 
 app = FastAPI()
 
-class ChoiseBase(baseModel):
-    chice_text:str
-    is_correct: bool
-    
-class QuestionBase(BaseModel):
-    question_text:str
-    choices:List[ChoiseBase]
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}

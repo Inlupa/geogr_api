@@ -1,0 +1,5 @@
+# рестор базы с потгисом для с измененным дампом 
+cat amur_edited.sql | docker exec -i geogr_api-postgres-1 psql -U postgres
+dump-amur22_meta_repl-202401311544_full
+# проверить какие контейнеры работают
+docker ps
