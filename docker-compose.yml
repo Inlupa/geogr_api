@@ -1,17 +1,32 @@
 version: '3.9'
 services:
   postgres:
-    # build: ./postgres
     image: postgis/postgis
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+    hostname: postgres
     volumes:
      - ./data/postgis:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    # command: cat amur3.sql | docker exec -i geogr_api-postgres-1 psql -U postgres
-    
-    
+    networks: 
+    - net
+
+  streamlit:
+      build: ./streamlit
+      ports:
+        - '8501:8501'
+      hostname: streamlit
+      cap_add:
+        - SYS_RESOURCE
+      volumes:
+        - ./streamlit:/streamlit
+      networks:
+        - net     
+
+networks:
+  net:
+    driver: bridge
