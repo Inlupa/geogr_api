@@ -21,81 +21,56 @@ st.set_page_config(
 )
 
 # Тайтл
-
-
 # параметры подключения к базе
 url_object = URL.create(
     "postgresql+psycopg2",
     username="postgres",
-    password="postgres",  # plain (unescaped) text
-    host="postgres",
-    database="postgres",
+    password="qq",  # plain (unesascaped) text
+    host="192.168.5.219",
+    database="amur22_non_iwp",
 )
 
 # создаем подключение к базе
 engine = create_engine(url_object)
 
-# Читаем данные из базы для нужной нам таблице, в данном случае это таблица site
-site_table = pd.read_sql('SELECT * FROM meta.site ', engine)
-unique_site = site_table.nunique()
-unique_site = pd.DataFrame(unique_site, columns=[' '])
+# Читаем данные из базы для нужной нам таблице, в данном случае это таблица catalog
+catalog_table = pd.read_sql('SELECT * FROM data.catalog', engine)
+unique_catalog = catalog_table.nunique()
+unique_catalog = pd.DataFrame(unique_catalog, columns=[' '])
 
-labels = list(unique_site.T)
-values = unique_site.T.values.tolist()
+labels = list(unique_catalog.T)
+values = unique_catalog.T.values.tolist()
 
 fig = go.Figure(data=[go.Bar(x = labels, y = values[0])])
 
 # Уникальное кол-во значений в таблице site
-st.title("Статистики по таблице site")
+st.title("Статистики по таблице catalog")
+st.subheader("Количество уникальных значений каждого столбца")
+st.plotly_chart(fig, use_container_width=True)
+
+###################################################################################
+data_table = pd.read_sql('SELECT * FROM data.data_value LIMIT 9000000', engine)
+
+unique_data = data_table.nunique()
+unique_data = pd.DataFrame(unique_data, columns=[' '])
+
+labels_data = list(unique_data.T)
+values_data = unique_data.T.values.tolist()
+
+fig = go.Figure(data=[go.Bar(x = labels_data, y = values_data[0])])
+
+# Уникальное кол-во значений в таблице data_value
+st.title("Статистики по таблице data_value")
 st.subheader("Количество уникальных значений каждого столбца")
 st.plotly_chart(fig, use_container_width=True)
 
 ###########################################################################
+###########################################################################
 
-# Количство переменных по типу
-id_len = len(site_table['id'])
-code_len = len(site_table['code'])
-name_len = len(site_table['name'])
-site_type_id_len = len(site_table['site_type_id'])
-owner_id_len = len(site_table['owner_id'])
-addr_id_len = len(site_table['addr_id'])
-geom_latlon_len = len(site_table['geom_latlon'])
-description_len = len(site_table['description'])
-parent_id_len = len(site_table['parent_id'])
-name_eng_len = len(site_table['name_eng'])
-lon_len = len(site_table['lon'])
-lat_len = len(site_table['lat'])
-
-int_len = id_len + site_type_id_len + owner_id_len + addr_id_len
-string_len = code_len + name_len + description_len + name_eng_len
-geo_len = geom_latlon_len
-float_len = lon_len + lat_len
-
-
-fig1 = go.Figure()
-fig1.add_trace(go.Pie(values=[int_len, string_len, geo_len, float_len], labels=["int4", 'string', 'geometry', 'float'], hole=0.9))
-
-fig1.update_layout(
-    annotations=[dict(text='Количество<br>переменных<br>по типу', x=0.5, y=0.5, font_size=20, showarrow=False)])
-st.subheader("Типы переменных")
-st.plotly_chart(fig1, use_container_width=True)
+st.subheader("Статистические параметры числовых значений таблица catalog")
+st.dataframe(data = catalog_table.describe(), use_container_width = True)
 
 ###################################################################################
 
-st.subheader("Статистические параметры числовых значений")
-st.dataframe(data = site_table.describe(), use_container_width = True)
-
-###################################################################################
-
-st.subheader("Распределение данных по площади")
-
-fig2 = go.Figure(go.Scattermapbox(lat=site_table["lat"], lon=site_table["lon"], text=site_table["name"]))
-map_center = go.layout.mapbox.Center(lat=58.38, 
-                                     lon=97.45)
-fig2.update_layout(mapbox_style="open-street-map",
-                  mapbox=dict(center=map_center, zoom=2), 
-                    height=1000,)
-
-st.plotly_chart(fig2, use_container_width=True)
-
-
+st.subheader("Статистические параметры числовых значений таблица data_value")
+st.dataframe(data = data_table.describe(), use_container_width = True)
