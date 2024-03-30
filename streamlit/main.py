@@ -19,7 +19,15 @@ st.set_page_config(
 
 
 
-def create_map(map_df):
+def create_map(map_df: "pd.DataFrame") -> "pd.DataFrame":
+    """ Создание карты с набором сайтов
+
+    Args:
+        map_df (pd.DataFrame): датафрейм для постороения карты 
+
+    Returns:
+        _type_: карта plotly с построенными точками 
+    """
     # настройка изображения 
     layout = go.Layout(
         autosize=False,
@@ -46,7 +54,38 @@ def create_map(map_df):
     return fig
     
     
+ 
+def stats_brush(df: "pd.DataFrame") -> "pd.DataFrame":
+    """ Функция которую надо будет перенести 
+        в создание итогового датафрейма дабы не захломлять стримлит лишними расчетами
+
+    Args:
+        df(pd.DataFrame): датафрейм с статистикой по перменной с набором всех сайтов
+    """
+    # кусок кода который надо будет перенести 
+    # в создание итогового датафрейма дабы не захломлять стримлит лишними расчетами
     
+    # удаление лишней колонки которая вылезла из-за нескольких операций по скливанию датафреймов
+    # (может поправить в основном коде, но не критично ) 
+    df.drop(df.columns[[0]], axis= 1, inplace= True)
+    
+    # несколько операций по смене даты на более читабельный формат 
+    df['date_loc_min'] = pd.to_datetime(df['date_loc_min'])
+    df['date_loc_min'] = df['date_loc_min'].dt.strftime('%Y-%m-%d')
+    
+    df['date_loc_max'] = pd.to_datetime(df['date_loc_max'])
+    df['date_loc_max'] = df['date_loc_max'].dt.strftime('%Y-%m-%d') 
+    
+    df.rename(columns={"site_code": "Уникальный нормер сайта",
+                       "site_name": "Название сайта",
+                       "value_mean": "Среднее",
+                       "value_min": "Минималльное",
+                       "value_max": "Максимальное",
+                       "value_amount": "Кол-во измерений",
+                       "date_loc_min": "Минимальная дата наблюдения",
+                       "date_loc_max": "Максмальная дата наблюдения"},
+              inplace=True)
+       
 # ######################
 # # sidebar
 # ######################
@@ -70,67 +109,83 @@ with st.sidebar:
 if choose == "Главная":
     st.title("на табах данного приложения представлена статистика по таблицы amur")
     
-# page Предиктивный расчет
 if choose == "Максимальная температура":
    
     st.title("Данные по максимальной температуре")
     stats = pd.read_csv(f"{os.getcwd()}/full_stat_максимальная температура.csv", encoding = "windows-1251", sep = ";")
     mapping = pd.read_csv(f"{os.getcwd()}/map_максимальная температура.csv", encoding = "windows-1251", sep = ";")
-   
+
+    # дообработка датафрейма с данными
+    stats_brush(stats)
+
    # вывод карты и таблицы на страницу
     st.dataframe(data = stats, use_container_width = True)
     st.plotly_chart(create_map(mapping), use_container_width=True)
 
-# page Оптимизационный расчет
+
 if choose == "Минимальная температура":
     st.title("Статистики по минимальной температуре")
     
     stats = pd.read_csv(f"{os.getcwd()}/full_stat_минимальная температура.csv", encoding = "windows-1251", sep = ";")
-    mapping = pd.read_csv(f"{os.getcwd()}/map_минимальная температура.csv", encoding = "windows-1251", sep = ";")   
-    
+    mapping = pd.read_csv(f"{os.getcwd()}/map_минимальная температура.csv", encoding = "windows-1251", sep = ";") 
+      
+    # дообработка датафрейма с данными
+    stats_brush(stats)
+
     # вывод карты и таблицы на страницу
     st.dataframe(data = stats, use_container_width = True)
     st.plotly_chart(create_map(mapping), use_container_width=True)
 
-# page Верификационный расчет
+
 if choose == "Средняя температура":
     st.title("Статистики по средней температуре")
     stats = pd.read_csv(f"{os.getcwd()}/full_stat_минимальная температура.csv", encoding = "windows-1251", sep = ";")
-    mapping = pd.read_csv(f"{os.getcwd()}/map_температура.csv", encoding = "windows-1251", sep = ";")   
-    
+    mapping = pd.read_csv(f"{os.getcwd()}/map_температура.csv", encoding = "windows-1251", sep = ";")  
+     
+    # дообработка датафрейма с данными
+    stats_brush(stats)
+
     # вывод карты и таблицы на страницу
     st.dataframe(data = stats, use_container_width = True)
     st.plotly_chart(create_map(mapping), use_container_width=True)
     
     
-# page Верификационный расчет
+
 if choose == "Отностительная влажность":
     st.title("Статистики по относительной влажности")
     stats = pd.read_csv(f"{os.getcwd()}/full_stat_отн_влажность.csv", encoding = "windows-1251", sep = ";")
     mapping = pd.read_csv(f"{os.getcwd()}/map_отн_влажность.csv", encoding = "windows-1251", sep = ";")   
     
+    # дообработка датафрейма с данными
+    stats_brush(stats)
+    
     # вывод карты и таблицы на страницу
     st.dataframe(data = stats, use_container_width = True)
     st.plotly_chart(create_map(mapping), use_container_width=True)
     
     
-# page Верификационный расчет
+
 if choose == "Дефицит упругости водяного пара":
     st.title("Статистики по дефициту упругости водяного пара")
     stats = pd.read_csv(f"{os.getcwd()}/full_stat_дефицит упругости водяного пара.csv", encoding = "windows-1251", sep = ";")
     mapping = pd.read_csv(f"{os.getcwd()}/map_дефицит упругости водяного пара.csv", encoding = "windows-1251", sep = ";")   
+    # дообработка датафрейма с данными
+    stats_brush(stats)
     
     # вывод карты и таблицы на страницу
     st.dataframe(data = stats, use_container_width = True)
     st.plotly_chart(create_map(mapping), use_container_width=True)
     
     
-# page Верификационный расчет
+
 if choose == "Осадки":
     st.title("Статистики по осадкам")
     stats = pd.read_csv(f"{os.getcwd()}/full_stat_осадки.csv", encoding = "windows-1251", sep = ";")
-    mapping = pd.read_csv(f"{os.getcwd()}/map_осадки.csv", encoding = "windows-1251", sep = ";")   
-    
+    mapping = pd.read_csv(f"{os.getcwd()}/map_осадки.csv", encoding = "windows-1251", sep = ";") 
+      
+    # дообработка датафрейма с данными
+    stats_brush(stats)
+
     # вывод карты и таблицы на страницу
     st.dataframe(data = stats, use_container_width = True)
     st.plotly_chart(create_map(mapping), use_container_width=True)    
