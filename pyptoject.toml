@@ -1,0 +1,6 @@
+[tool.black]
+lint-length=96
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
